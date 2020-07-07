@@ -34,7 +34,7 @@ namespace HardcoreMines2
         {
             if (e.NewLocation is MineShaft mineShaft)
             {
-                this.Monitor.Log($"{e.NewLocation.Name}, level: {mineShaft.mineLevel}", LogLevel.Debug);
+                //this.Monitor.Log($"{e.NewLocation.Name}, level: {mineShaft.mineLevel}", LogLevel.Debug);
 
                 if(mineShaft.mineLevel == 10)
                 {
@@ -87,16 +87,18 @@ namespace HardcoreMines2
                 }
             }
 
-            var objects = Game1.currentLocation.Objects;
-
-            if(objects.Count() > 0)
+            foreach (var pair in Game1.currentLocation.Objects.Pairs)
             {
-                SerializableDictionary<Vector2, StardewValley.Object> keyValuePair = objects.FirstOrDefault();
-                
-                foreach(var i in keyValuePair)
+                Vector2 tile = pair.Key;
+                StardewValley.Object obj = pair.Value;
+
+                //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+
+                if(obj.name == "Chest")
                 {
-                    this.Monitor.Log($"Key: {i.Key}, Value: {i.Value}");                }
-                //.mine.removeObject(keyValuePair.Values, false);
+                    Game1.currentLocation.removeObject(tile, false);
+                    break;
+                }
             }
         }
 
@@ -122,7 +124,7 @@ namespace HardcoreMines2
                 boss_treasures_state[0] = 1;
             }
 
-            this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
+            //this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
             Game1.playSound("powerup");
 
         }
@@ -156,7 +158,7 @@ namespace HardcoreMines2
                                 {
                                     if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
                                     {
-                                        this.Monitor.Log("[Hardcore Mines 2] Tile clear, trying to spawn.", LogLevel.Debug);
+                                        //this.Monitor.Log("[Hardcore Mines 2] Tile clear, trying to spawn.", LogLevel.Debug);
 
                                         Game1.mine.tryToAddMonster((Monster)new GreenSlime(new Vector2((float)tileX, (float)tileY), Color.Green), tileX, tileY);
 
