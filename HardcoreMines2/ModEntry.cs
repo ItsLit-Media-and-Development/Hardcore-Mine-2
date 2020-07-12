@@ -56,7 +56,7 @@ namespace HardcoreMines2
                     if(Game1.mine.isTileClearForMineObjects(new Vector2((float) tileX, (float) tileY)))
                     {
                         BigSlime bigSlime = new BigSlime(new Vector2((float)tileX, (float)tileY), 0);
-                        bigSlime.Health = 1;
+                        bigSlime.Health = 400;
                         bigSlime.speed = 6;
                         bigSlime.ExperienceGained = 40;
                         bigSlime.DamageToFarmer = 12;
