@@ -36,9 +36,16 @@ namespace HardcoreMines2
             {
                 //this.Monitor.Log($"{e.NewLocation.Name}, level: {mineShaft.mineLevel}", LogLevel.Debug);
 
-                if(mineShaft.mineLevel == 10)
+                switch(mineShaft.mineLevel)
                 {
-                    CreateLevel10();
+                    case 10:
+                        CreateLevel10();
+
+                        break;
+                    case 20:
+                        CreateLevel20();
+
+                        break;
                 }
             }
         }
@@ -62,8 +69,8 @@ namespace HardcoreMines2
                         bigSlime.DamageToFarmer = 12;
                         bigSlime.isGlowing = true;
                         bigSlime.glowingTransparency = 0.0f;
-                        //bigSlime.jitteriness = (NetDouble)100.0;
-                        //bigSlime.c = (NetColor)new Color(0.0f, 50f, 0.0f);
+                        bigSlime.jitteriness.Value = (Double)100.0;
+                        bigSlime.c.Value = new NetColor(new Color(100,0,0));
 
                         Game1.mine.tryToAddMonster((Monster)bigSlime, tileX, tileY);
                         boss_hp_events.Add((Monster)bigSlime, new Action(BossLevel10Die));
@@ -102,6 +109,65 @@ namespace HardcoreMines2
             }
         }
 
+        private void CreateLevel20()
+        {
+            int height = Game1.mine.Map.DisplayHeight;
+            int width = Game1.mine.Map.DisplayWidth;
+            bool flag = false;
+
+            for (int tileX = 1; tileX < width; ++tileX)
+            {
+                for (int tileY = 1; tileY < height; ++tileY)
+                {
+                    if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
+                    {
+                        MetalHead metalHead = new MetalHead(new Vector2((float)tileX, (float)tileY), 0);
+                        metalHead.Health = 400;
+                        metalHead.speed = 6;
+                        metalHead.ExperienceGained = 40;
+                        metalHead.DamageToFarmer = 12;
+                        metalHead.isGlowing = true;
+                        metalHead.glowingTransparency = 0.0f;
+                        metalHead.jitteriness.Value = 100.0;
+                        metalHead.c.Value = new NetColor(new Color(255, 255, 204));
+
+                        Game1.mine.tryToAddMonster((Monster)metalHead, tileX, tileY);
+                        boss_hp_events.Add((Monster)metalHead, new Action(BossLevel20Die));
+                        flag = true;
+
+                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
+                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
+                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
+                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
+                    }
+
+                    if (flag)
+                    {
+                        break;
+                    }
+                }
+
+                if (flag)
+                {
+                    break;
+                }
+            }
+
+            foreach (var pair in Game1.currentLocation.Objects.Pairs)
+            {
+                Vector2 tile = pair.Key;
+                StardewValley.Object obj = pair.Value;
+
+                //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+
+                if (obj.name == "Chest")
+                {
+                    Game1.currentLocation.removeObject(tile, false);
+                    break;
+                }
+            }
+        }
+
         private void BossLevel10Die()
         {
             if(boss_treasures_state[0] == 0)
@@ -114,6 +180,34 @@ namespace HardcoreMines2
                     {
                         chest.addItem((Item)new Boots(506));
                     } else
+                    {
+                        chest.addItem((Item)new StardewValley.Object(Vector2.Zero, treasureItem.id, treasureItem.count));
+                    }
+                }
+
+                (Game1.mine.objects).Add(new Vector2(9f, 9f), (StardewValley.Object)chest);
+
+                boss_treasures_state[0] = 1;
+            }
+
+            //this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
+            Game1.playSound("powerup");
+
+        }
+
+        private void BossLevel20Die()
+        {
+            if (boss_treasures_state[0] == 0)
+            {
+                Chest chest = new Chest(false, new Vector2(9f, 9f));
+
+                foreach (treasure_item treasureItem in boss_treasures_inventory[0])
+                {
+                    if (treasureItem.id == 506)
+                    {
+                        chest.addItem((Item)new Boots(506));
+                    }
+                    else
                     {
                         chest.addItem((Item)new StardewValley.Object(Vector2.Zero, treasureItem.id, treasureItem.count));
                     }
@@ -200,6 +294,8 @@ namespace HardcoreMines2
             {
                 boss_hp_events.Remove(monsterList[index]);
             }
+
+            
         }
 
         private void OnInventoryChange(object sender, InventoryChangedEventArgs e)
