@@ -8,8 +8,10 @@ using StardewValley.Monsters;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace HardcoreMines2
 {
@@ -20,9 +22,13 @@ namespace HardcoreMines2
         private Dictionary<int, int> boss_treasures_state = new Dictionary<int, int>();
         private Dictionary<Monster, Action> boss_hp_events = new Dictionary<Monster, Action>();
         private List<ModEntry.BossSpawn> monsters_to_spawn = new List<ModEntry.BossSpawn>();
+        private ModConfig Config;
+        private Random rng = new Random();
 
         public override void Entry(IModHelper helper)
         {
+            Config = helper.ReadConfig<ModConfig>();
+
             Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             Helper.Events.GameLoop.Saved += OnSave;
             Helper.Events.Player.InventoryChanged += OnInventoryChange;
@@ -34,18 +40,93 @@ namespace HardcoreMines2
         {
             if (e.NewLocation is MineShaft mineShaft)
             {
-                //this.Monitor.Log($"{e.NewLocation.Name}, level: {mineShaft.mineLevel}", LogLevel.Debug);
+                mineLevel = mineShaft.mineLevel / 10;
 
-                switch(mineShaft.mineLevel)
+                if(isBossLevel(mineShaft.mineLevel))
                 {
-                    case 10:
-                        CreateLevel10();
+                    BossLevel();
+                } else
+                {
+                    GeneralLevel();
+                }
+            }
+        }
 
-                        break;
-                    case 20:
-                        CreateLevel20();
+        private void BossLevel()
+        {
+            int height = Game1.mine.Map.DisplayHeight;
+            int width = Game1.mine.Map.DisplayWidth;
+            bool flag = false;
 
+            for (int tileX = 1; tileX < width; ++tileX)
+            {
+                for (int tileY = 1; tileY < height; ++tileY)
+                {
+                    if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
+                    {
+                        //lets get the monster
+                        switch (rng.Next(1, 21))
+                        {
+                            case 1:
+                            default:
+                                SlimeBoss(tileX, tileY);
+                                flag = true;
+                                break;
+                        }
+                    }
+
+                    if (flag)
+                    {
                         break;
+                    }
+                }
+
+                if (flag)
+                {
+                    break;
+                }
+            }
+        }
+
+        private void SlimeBoss(int x, int y)
+        {
+            BigSlime bigSlime = new BigSlime(new Vector2(x, y), 0);
+            bigSlime.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            bigSlime.speed = 6;
+            bigSlime.ExperienceGained = 40;
+            bigSlime.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            bigSlime.isGlowing = true;
+            bigSlime.glowingTransparency = 0.0f;
+            bigSlime.jitteriness.Value = (Double)100.0;
+            bigSlime.c.Value = new NetColor(new Color(rng.Next(255), rng.Next(255), rng.Next(255)));
+
+            Game1.mine.tryToAddMonster((Monster)bigSlime, x, y);
+            boss_hp_events.Add((Monster)bigSlime, new Action(BossLevel10Die));
+
+            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
+            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
+            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
+            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
+        }
+
+        private void GeneralLevel()
+        {
+
+            var characters = Game1.currentLocation.getCharacters().OfType<Monster>().ToArray<Monster>();
+
+            foreach(Monster mon in characters)
+            {
+                mon.MaxHealth = (int)Math.Max(1.0, mon.maxHealth * Config.difficulty);
+                mon.Health = mon.MaxHealth;
+                
+                if(mon.damageToFarmer > 0)
+                {
+                    mon.DamageToFarmer = (int)Math.Max(1.0, mon.damageToFarmer * Config.difficulty);
+                }
+
+                if(Config.extraXP)
+                {
+                    mon.ExperienceGained = (int)Math.Max(1.0, mon.experienceGained * Config.difficulty);
                 }
             }
         }
@@ -102,65 +183,6 @@ namespace HardcoreMines2
                 //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
 
                 if(obj.name == "Chest")
-                {
-                    Game1.currentLocation.removeObject(tile, false);
-                    break;
-                }
-            }
-        }
-
-        private void CreateLevel20()
-        {
-            int height = Game1.mine.Map.DisplayHeight;
-            int width = Game1.mine.Map.DisplayWidth;
-            bool flag = false;
-
-            for (int tileX = 1; tileX < width; ++tileX)
-            {
-                for (int tileY = 1; tileY < height; ++tileY)
-                {
-                    if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
-                    {
-                        MetalHead metalHead = new MetalHead(new Vector2((float)tileX, (float)tileY), 0);
-                        metalHead.Health = 400;
-                        metalHead.speed = 6;
-                        metalHead.ExperienceGained = 40;
-                        metalHead.DamageToFarmer = 12;
-                        metalHead.isGlowing = true;
-                        metalHead.glowingTransparency = 0.0f;
-                        metalHead.jitteriness.Value = 100.0;
-                        metalHead.c.Value = new NetColor(new Color(255, 255, 204));
-
-                        Game1.mine.tryToAddMonster((Monster)metalHead, tileX, tileY);
-                        boss_hp_events.Add((Monster)metalHead, new Action(BossLevel20Die));
-                        flag = true;
-
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
-                    }
-
-                    if (flag)
-                    {
-                        break;
-                    }
-                }
-
-                if (flag)
-                {
-                    break;
-                }
-            }
-
-            foreach (var pair in Game1.currentLocation.Objects.Pairs)
-            {
-                Vector2 tile = pair.Key;
-                StardewValley.Object obj = pair.Value;
-
-                //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
-
-                if (obj.name == "Chest")
                 {
                     Game1.currentLocation.removeObject(tile, false);
                     break;
@@ -427,6 +449,11 @@ namespace HardcoreMines2
                 this.count = p_count;
                 this.trigger_hp = p_trigger_hp;
             }
+        }
+
+        public bool isBossLevel(int lvl)
+        {
+            return (lvl % 10) == 0;
         }
     }
 }
