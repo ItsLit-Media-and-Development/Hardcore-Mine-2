@@ -44,6 +44,7 @@ namespace HardcoreMines2
 
                 if(isBossLevel(mineShaft.mineLevel))
                 {
+                    this.Monitor.Log("Boss Level hit",LogLevel.Debug);
                     BossLevel();
                 } else
                 {
@@ -64,13 +65,37 @@ namespace HardcoreMines2
                 {
                     if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
                     {
+                        flag = true;
+
                         //lets get the monster
-                        switch (rng.Next(1, 21))
+                        switch (rng.Next(1, 6))
                         {
                             case 1:
-                            default:
+                                BatBoss(tileX, tileY);
+                                
+                                break;
+                            case 2:
                                 SlimeBoss(tileX, tileY);
-                                flag = true;
+
+                                break;
+                            case 3:
+                                BugBoss(tileX, tileY);
+
+                                break;
+                            case 4:
+                                DinoBoss(tileX, tileY);
+
+                                break;
+                            case 5:
+                                DuggyBoss(tileX, tileY);
+
+                                break;
+                            case 6:
+                                DustBoss(tileX, tileY);
+
+                                break;
+                            default:
+                                this.Monitor.Log("Hit the default somehow", LogLevel.Debug);
                                 break;
                         }
                     }
@@ -86,6 +111,95 @@ namespace HardcoreMines2
                     break;
                 }
             }
+
+            foreach (var pair in Game1.currentLocation.Objects.Pairs)
+            {
+                Vector2 tile = pair.Key;
+                StardewValley.Object obj = pair.Value;
+
+                //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+
+                if (obj.name == "Chest")
+                {
+                    Game1.currentLocation.removeObject(tile, false);
+                    break;
+                }
+            }
+        }
+
+        private void DustBoss(int x, int y)
+        {
+            DustSpirit dust = new DustSpirit(new Vector2(x, y), true);
+            dust.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            dust.speed = 6;
+            dust.ExperienceGained = 40;
+            dust.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            dust.isGlowing = true;
+            dust.glowingTransparency = 0.0f;
+            dust.jitteriness.Value = (Double)100.0;
+
+            Game1.mine.tryToAddMonster((Monster)dust, x, y);
+            boss_hp_events.Add((Monster)dust, new Action(BossLevel10Die));
+        }
+
+        private void DuggyBoss(int x, int y)
+        {
+            Duggy duggy = new Duggy(new Vector2(x, y));
+            duggy.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            duggy.speed = 6;
+            duggy.ExperienceGained = 40;
+            duggy.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            duggy.isGlowing = true;
+            duggy.glowingTransparency = 0.0f;
+            duggy.jitteriness.Value = (Double)100.0;
+
+            Game1.mine.tryToAddMonster((Monster)duggy, x, y);
+            boss_hp_events.Add((Monster)duggy, new Action(BossLevel10Die));
+        }
+
+        private void DinoBoss(int x, int y)
+        {
+            DinoMonster dino = new DinoMonster(new Vector2(x, y));
+            dino.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            dino.speed = 6;
+            dino.ExperienceGained = 40;
+            dino.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            dino.isGlowing = true;
+            dino.glowingTransparency = 0.0f;
+            dino.jitteriness.Value = (Double)100.0;
+
+            Game1.mine.tryToAddMonster((Monster)dino, x, y);
+            boss_hp_events.Add((Monster)dino, new Action(BossLevel10Die));
+        }
+
+        private void BugBoss(int x, int y)
+        {
+            Bug bug = new Bug(new Vector2(x, y), 0);
+            bug.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            bug.speed = 6;
+            bug.ExperienceGained = 40;
+            bug.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            bug.isGlowing = true;
+            bug.glowingTransparency = 0.0f;
+            bug.jitteriness.Value = (Double)100.0;
+
+            Game1.mine.tryToAddMonster((Monster)bug, x, y);
+            boss_hp_events.Add((Monster)bug, new Action(BossLevel10Die));
+        }
+
+        private void BatBoss(int x, int y)
+        {
+            Bat bat = new Bat(new Vector2(x, y), 0);
+            bat.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            bat.speed = 6;
+            bat.ExperienceGained = 40;
+            bat.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            bat.isGlowing = true;
+            bat.glowingTransparency = 0.0f;
+            bat.jitteriness.Value = (Double)100.0;
+
+            Game1.mine.tryToAddMonster((Monster)bat, x, y);
+            boss_hp_events.Add((Monster)bat, new Action(BossLevel10Die));
         }
 
         private void SlimeBoss(int x, int y)
@@ -103,10 +217,13 @@ namespace HardcoreMines2
             Game1.mine.tryToAddMonster((Monster)bigSlime, x, y);
             boss_hp_events.Add((Monster)bigSlime, new Action(BossLevel10Die));
 
-            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
-            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
-            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
-            monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
+            if (rng.Next(1, 10) > 5)
+            {
+                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
+                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
+                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
+                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
+            }
         }
 
         private void GeneralLevel()
