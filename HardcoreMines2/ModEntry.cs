@@ -8,10 +8,8 @@ using StardewValley.Monsters;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace HardcoreMines2
 {
@@ -44,7 +42,6 @@ namespace HardcoreMines2
 
                 if(isBossLevel(mineShaft.mineLevel))
                 {
-                    this.Monitor.Log("Boss Level hit",LogLevel.Debug);
                     BossLevel();
                 } else
                 {
@@ -55,6 +52,7 @@ namespace HardcoreMines2
 
         private void BossLevel()
         {
+            boss_treasures_state[0] = 0;
             int height = Game1.mine.Map.DisplayHeight;
             int width = Game1.mine.Map.DisplayWidth;
             bool flag = false;
@@ -68,7 +66,7 @@ namespace HardcoreMines2
                         flag = true;
 
                         //lets get the monster
-                        switch (rng.Next(1, 6))
+                        switch (rng.Next(1, 8))
                         {
                             case 1:
                                 BatBoss(tileX, tileY);
@@ -94,8 +92,15 @@ namespace HardcoreMines2
                                 DustBoss(tileX, tileY);
 
                                 break;
+                            case 7:
+                                GhostBoss(tileX, tileY);
+
+                                break;
+                            case 8:
+                                MetalBoss(tileX, tileY);
+
+                                break;
                             default:
-                                this.Monitor.Log("Hit the default somehow", LogLevel.Debug);
                                 break;
                         }
                     }
@@ -117,7 +122,7 @@ namespace HardcoreMines2
                 Vector2 tile = pair.Key;
                 StardewValley.Object obj = pair.Value;
 
-                //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+                this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
 
                 if (obj.name == "Chest")
                 {
@@ -125,6 +130,37 @@ namespace HardcoreMines2
                     break;
                 }
             }
+        }
+
+        private void MetalBoss(int x, int y)
+        {
+            MetalHead metal = new MetalHead(new Vector2(x, y), 0);
+            metal.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            metal.speed = 6;
+            metal.ExperienceGained = 40;
+            metal.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            metal.isGlowing = true;
+            metal.glowingTransparency = 0.0f;
+            metal.jitteriness.Value = (Double)100.0;
+            metal.c.Value = new NetColor(new Color(rng.Next(255), rng.Next(255), rng.Next(255)));
+
+            Game1.mine.tryToAddMonster((Monster)metal, x, y);
+            boss_hp_events.Add((Monster)metal, new Action(BossLevel10Die));
+        }
+
+        private void GhostBoss(int x, int y)
+        {
+            Ghost ghost = new Ghost(new Vector2(x, y));
+            ghost.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
+            ghost.speed = 6;
+            ghost.ExperienceGained = 40;
+            ghost.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
+            ghost.isGlowing = true;
+            ghost.glowingTransparency = 0.0f;
+            ghost.jitteriness.Value = (Double)100.0;
+
+            Game1.mine.tryToAddMonster((Monster)ghost, x, y);
+            boss_hp_events.Add((Monster)ghost, new Action(BossLevel10Die));
         }
 
         private void DustBoss(int x, int y)
@@ -313,49 +349,30 @@ namespace HardcoreMines2
             {
                 Chest chest = new Chest(false, new Vector2(9f, 9f));
 
-                foreach(treasure_item treasureItem in boss_treasures_inventory[0])
+                //this.Monitor.Log($"count: {boss_treasures_inventory.Count}",LogLevel.Debug);
+                foreach(treasure_item treasureItem in boss_treasures_inventory[rng.Next(0, 10)])
                 {
+                    //this.Monitor.Log($"{treasureItem.id}", LogLevel.Debug);
+
                     if(treasureItem.id == 506)
                     {
                         chest.addItem((Item)new Boots(506));
                     } else
                     {
+                        //chest.addItem((Item)new StardewValley.Object(Vector2.Zero, items[rng.Next(0, 10)], treasureItem.count));
                         chest.addItem((Item)new StardewValley.Object(Vector2.Zero, treasureItem.id, treasureItem.count));
                     }
+
+                    break;
                 }
 
-                (Game1.mine.objects).Add(new Vector2(9f, 9f), (StardewValley.Object)chest);
+                (Game1.mine.objects).Add(new Vector2(9f, 9f), chest);
 
                 boss_treasures_state[0] = 1;
-            }
-
-            //this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
-            Game1.playSound("powerup");
-
-        }
-
-        private void BossLevel20Die()
-        {
-            if (boss_treasures_state[0] == 0)
+            }/* else
             {
-                Chest chest = new Chest(false, new Vector2(9f, 9f));
-
-                foreach (treasure_item treasureItem in boss_treasures_inventory[0])
-                {
-                    if (treasureItem.id == 506)
-                    {
-                        chest.addItem((Item)new Boots(506));
-                    }
-                    else
-                    {
-                        chest.addItem((Item)new StardewValley.Object(Vector2.Zero, treasureItem.id, treasureItem.count));
-                    }
-                }
-
-                (Game1.mine.objects).Add(new Vector2(9f, 9f), (StardewValley.Object)chest);
-
-                boss_treasures_state[0] = 1;
-            }
+                this.Monitor.Log($"{boss_treasures_state[0]}", LogLevel.Debug);
+            }*/
 
             //this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
             Game1.playSound("powerup");
@@ -545,6 +562,13 @@ namespace HardcoreMines2
                 treasureItemList.Add(new treasure_item(334, 5));
                 treasureItemList.Add(new treasure_item(459, 1));
                 treasureItemList.Add(new treasure_item(506, 1));
+                treasureItemList.Add(new treasure_item(96, 1));
+                treasureItemList.Add(new treasure_item(60, 2));
+                treasureItemList.Add(new treasure_item(86, 1));
+                treasureItemList.Add(new treasure_item(287, 5));
+                treasureItemList.Add(new treasure_item(335, 5));
+                treasureItemList.Add(new treasure_item(336, 5));
+                treasureItemList.Add(new treasure_item(517, 1));
             }
             else
             {
