@@ -21,11 +21,40 @@ namespace HardcoreMines2
         private Dictionary<Monster, Action> boss_hp_events = new Dictionary<Monster, Action>();
         private List<ModEntry.BossSpawn> monsters_to_spawn = new List<ModEntry.BossSpawn>();
         private ModConfig Config;
+        private double difficulty;
         private Random rng = new Random();
 
         public override void Entry(IModHelper helper)
         {
             Config = helper.ReadConfig<ModConfig>();
+
+            switch(Config.difficulty)
+            {
+                case 1:
+                    difficulty = 0.5;
+
+                    break;
+                case 2:
+                    difficulty = 0.7;
+
+                    break;
+                case 3:
+                    difficulty = 1;
+
+                    break;
+                case 4:
+                    difficulty = 1.5;
+
+                    break;
+                case 5:
+                    difficulty = 2;
+
+                    break;
+                default:
+                    difficulty = 1;
+                    
+                    break;
+            }
 
             Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             Helper.Events.GameLoop.Saved += OnSave;
@@ -269,17 +298,17 @@ namespace HardcoreMines2
 
             foreach(Monster mon in characters)
             {
-                mon.MaxHealth = (int)Math.Max(1.0, mon.maxHealth * Config.difficulty);
+                mon.MaxHealth = (int)Math.Max(1.0, mon.maxHealth * difficulty);
                 mon.Health = mon.MaxHealth;
                 
                 if(mon.damageToFarmer > 0)
                 {
-                    mon.DamageToFarmer = (int)Math.Max(1.0, mon.damageToFarmer * Config.difficulty);
+                    mon.DamageToFarmer = (int)Math.Max(1.0, mon.damageToFarmer * difficulty);
                 }
 
                 if(Config.extraXP)
                 {
-                    mon.ExperienceGained = (int)Math.Max(1.0, mon.experienceGained * Config.difficulty);
+                    mon.ExperienceGained = (int)Math.Max(1.0, mon.experienceGained * difficulty);
                 }
             }
         }
