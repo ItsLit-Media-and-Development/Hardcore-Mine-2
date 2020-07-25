@@ -67,14 +67,19 @@ namespace HardcoreMines2
         {
             if (e.NewLocation is MineShaft mineShaft)
             {
-                mineLevel = mineShaft.mineLevel / 10;
+                //this.monitor.Log($"{mineShaft.mineLevel}", LogLevel.Debug);
+                if (mineShaft.mineLevel != 120)
+                {
+                    mineLevel = mineShaft.mineLevel / 10;
 
-                if(isBossLevel(mineShaft.mineLevel))
-                {
-                    BossLevel();
-                } else
-                {
-                    GeneralLevel();
+                    if (isBossLevel(mineShaft.mineLevel))
+                    {
+                        BossLevel();
+                    }
+                    else
+                    {
+                        GeneralLevel();
+                    }
                 }
             }
         }
@@ -151,7 +156,7 @@ namespace HardcoreMines2
                 Vector2 tile = pair.Key;
                 StardewValley.Object obj = pair.Value;
 
-                this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+                //this.monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
 
                 if (obj.name == "Chest")
                 {
@@ -362,7 +367,7 @@ namespace HardcoreMines2
                 Vector2 tile = pair.Key;
                 StardewValley.Object obj = pair.Value;
 
-                //this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+                ////this.monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
 
                 if(obj.name == "Chest")
                 {
@@ -378,32 +383,42 @@ namespace HardcoreMines2
             {
                 Chest chest = new Chest(false, new Vector2(9f, 9f));
 
-                //this.Monitor.Log($"count: {boss_treasures_inventory.Count}",LogLevel.Debug);
-                foreach(treasure_item treasureItem in boss_treasures_inventory[rng.Next(0, 10)])
+                if (mineLevel != 10)
                 {
-                    //this.Monitor.Log($"{treasureItem.id}", LogLevel.Debug);
+                    if (mineLevel != 12)
+                    {
+                        ////this.monitor.Log($"count: {boss_treasures_inventory.Count}",LogLevel.Debug);
+                        foreach (treasure_item treasureItem in boss_treasures_inventory[rng.Next(0, 10)])
+                        {
+                            ////this.monitor.Log($"{treasureItem.id}", LogLevel.Debug);
 
-                    if(treasureItem.id == 506)
-                    {
-                        chest.addItem((Item)new Boots(506));
-                    } else
-                    {
-                        //chest.addItem((Item)new StardewValley.Object(Vector2.Zero, items[rng.Next(0, 10)], treasureItem.count));
-                        chest.addItem((Item)new StardewValley.Object(Vector2.Zero, treasureItem.id, treasureItem.count));
+                            if (treasureItem.id == 506)
+                            {
+                                chest.addItem((Item)new Boots(506));
+                            }
+                            else
+                            {
+                                //chest.addItem((Item)new StardewValley.Object(Vector2.Zero, items[rng.Next(0, 10)], treasureItem.count));
+                                chest.addItem((Item)new StardewValley.Object(Vector2.Zero, treasureItem.id, treasureItem.count));
+                            }
+
+                            break;
+                        }
                     }
-
-                    break;
+                } else
+                {
+                    //Stardrop for level 100
+                    chest.addItem((Item)new StardewValley.Object(434, 1));
                 }
-
                 (Game1.mine.objects).Add(new Vector2(9f, 9f), chest);
 
                 boss_treasures_state[0] = 1;
-            }/* else
+            } else
             {
-                this.Monitor.Log($"{boss_treasures_state[0]}", LogLevel.Debug);
-            }*/
+                //this.monitor.Log($"{boss_treasures_state[0]}", LogLevel.Debug);
+            }
 
-            //this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
+            ////this.monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
             Game1.playSound("powerup");
 
         }
@@ -437,7 +452,7 @@ namespace HardcoreMines2
                                 {
                                     if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
                                     {
-                                        //this.Monitor.Log("[Hardcore Mines 2] Tile clear, trying to spawn.", LogLevel.Debug);
+                                        ////this.monitor.Log("[Hardcore Mines 2] Tile clear, trying to spawn.", LogLevel.Debug);
 
                                         Game1.mine.tryToAddMonster((Monster)new GreenSlime(new Vector2((float)tileX, (float)tileY), Color.Green), tileX, tileY);
 
@@ -523,7 +538,7 @@ namespace HardcoreMines2
                     {
                         str = str + " " + (object)treasureItem.id + "," + (object)treasureItem.count;
                     }
-
+                    //this.monitor.Log(str, LogLevel.Debug);
                     streamWriter.WriteLine(str);
                 }
             }
@@ -586,24 +601,54 @@ namespace HardcoreMines2
             boss_treasures_state.Add(id, 0);
             List<treasure_item> treasureItemList = new List<treasure_item>();
 
-            if (id == 0)
+            switch(rng.Next(0, 10))
             {
-                treasureItemList.Add(new treasure_item(334, 5));
-                treasureItemList.Add(new treasure_item(459, 1));
-                treasureItemList.Add(new treasure_item(506, 1));
-                treasureItemList.Add(new treasure_item(96, 1));
-                treasureItemList.Add(new treasure_item(60, 2));
-                treasureItemList.Add(new treasure_item(86, 1));
-                treasureItemList.Add(new treasure_item(287, 5));
-                treasureItemList.Add(new treasure_item(335, 5));
-                treasureItemList.Add(new treasure_item(336, 5));
-                treasureItemList.Add(new treasure_item(517, 1));
-            }
-            else
-            {
-                treasureItemList.Add(new treasure_item(350, 3));
-            }
+                case 0:
+                    treasureItemList.Add(new treasure_item(334, 5));
 
+                    break;
+                case 1:
+                    treasureItemList.Add(new treasure_item(459, 1));
+
+                    break;
+                case 2:
+                    treasureItemList.Add(new treasure_item(506, 1));
+
+                    break;
+                case 3:
+                    treasureItemList.Add(new treasure_item(96, 1));
+
+                    break;
+                case 4:
+                    treasureItemList.Add(new treasure_item(60, 2));
+
+                    break;
+                case 5:
+                    treasureItemList.Add(new treasure_item(86, 1));
+
+                    break;
+                case 6:
+                    treasureItemList.Add(new treasure_item(287, 5));
+
+                    break;
+                case 7:
+                    treasureItemList.Add(new treasure_item(335, 5));
+
+                    break;
+                case 8:
+                    treasureItemList.Add(new treasure_item(336, 5));
+
+                    break;
+                case 9:
+                    treasureItemList.Add(new treasure_item(517, 1));
+
+                    break;
+                case 10:
+                    treasureItemList.Add(new treasure_item(350, 3));
+
+                    break;
+            }
+            
             boss_treasures_inventory.Add(id, treasureItemList);
         }
 
