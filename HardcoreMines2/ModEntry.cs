@@ -67,18 +67,28 @@ namespace HardcoreMines2
         {
             if (e.NewLocation is MineShaft mineShaft)
             {
-                //this.monitor.Log($"{mineShaft.mineLevel}", LogLevel.Debug);
+                //this.Monitor.Log($"Mineshaft {mineShaft.name} at level {mineShaft.mineLevel}", LogLevel.Debug);
+
                 if (mineShaft.mineLevel != 120)
                 {
-                    mineLevel = mineShaft.mineLevel / 10;
+                    if (mineShaft.mineLevel != 77377)
+                    {
+                        if (mineShaft.mineLevel != 90)
+                        {
+                            if (mineShaft.mineLevel > 120 && Config.skullCave)
+                            {
+                                mineLevel = mineShaft.mineLevel / 10;
 
-                    if (isBossLevel(mineShaft.mineLevel))
-                    {
-                        BossLevel();
-                    }
-                    else
-                    {
-                        GeneralLevel();
+                                if (isBossLevel(mineShaft.mineLevel))
+                                {
+                                    BossLevel();
+                                }
+                                else
+                                {
+                                    GeneralLevel();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -645,6 +655,22 @@ namespace HardcoreMines2
                     break;
                 case 10:
                     treasureItemList.Add(new treasure_item(350, 3));
+
+                    break;
+                case 11:
+                    treasureItemList.Add(new treasure_item(436, 2));
+
+                    break;
+                case 12:
+                    treasureItemList.Add(new treasure_item(17, 1));
+
+                    break;
+                case 13:
+                    treasureItemList.Add(new treasure_item(348, 1));
+
+                    break;
+                case 14:
+                    treasureItemList.Add(new treasure_item(745, 3));
 
                     break;
             }
