@@ -75,7 +75,7 @@ namespace HardcoreMines2
                     {
                         if (mineShaft.mineLevel != 90)
                         {
-                            if (mineShaft.mineLevel > 120 && Config.skullCave)
+                            if ((mineShaft.mineLevel > 120 && Config.skullCave) || mineShaft.mineLevel <= 120)
                             {
                                 mineLevel = mineShaft.mineLevel / 10;
 
