@@ -16,10 +16,10 @@ namespace HardcoreMines2
     internal class ModEntry : Mod
     {
         private int mineLevel = 0;
-        private Dictionary<int, List<treasure_item>> boss_treasures_inventory = new Dictionary<int, List<treasure_item>>();
-        private Dictionary<int, int> boss_treasures_state = new Dictionary<int, int>();
-        private Dictionary<Monster, Action> boss_hp_events = new Dictionary<Monster, Action>();
-        private List<ModEntry.BossSpawn> monsters_to_spawn = new List<ModEntry.BossSpawn>();
+        private readonly Dictionary<int, List<treasure_item>> _bossTreasuresInventory = new Dictionary<int, List<treasure_item>>();
+        private readonly Dictionary<int, int> _bossTreasuresState = new Dictionary<int, int>();
+        private readonly Dictionary<Monster, Action> _bossHpEvents = new Dictionary<Monster, Action>();
+        private readonly List<ModEntry.BossSpawn> _monstersToSpawn = new List<ModEntry.BossSpawn>();
         private ModConfig Config;
         private double difficulty;
         private Random rng = new Random();
@@ -48,6 +48,26 @@ namespace HardcoreMines2
                     break;
                 case 5:
                     difficulty = 2;
+
+                    break;
+                case 6:
+                    difficulty = 10;
+
+                    break;
+                case 7:
+                    difficulty = 30;
+
+                    break;
+                case 8:
+                    difficulty = 60;
+
+                    break;
+                case 9:
+                    difficulty = 100;
+
+                    break;
+                case 10:
+                    difficulty = 500;
 
                     break;
                 default:
@@ -96,7 +116,7 @@ namespace HardcoreMines2
 
         private void BossLevel()
         {
-            boss_treasures_state[0] = 0;
+            _bossTreasuresState[0] = 0;
             int height = Game1.mine.Map.DisplayHeight;
             int width = Game1.mine.Map.DisplayWidth;
             bool flag = false;
@@ -178,131 +198,148 @@ namespace HardcoreMines2
 
         private void MetalBoss(int x, int y)
         {
-            MetalHead metal = new MetalHead(new Vector2(x, y), 0);
-            metal.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            metal.speed = 6;
-            metal.ExperienceGained = 40;
-            metal.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            metal.isGlowing = true;
-            metal.glowingTransparency = 0.0f;
+            MetalHead metal = new MetalHead(new Vector2(x, y), 0)
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             metal.jitteriness.Value = (Double)100.0;
             metal.c.Value = new NetColor(new Color(rng.Next(255), rng.Next(255), rng.Next(255)));
 
             Game1.mine.tryToAddMonster((Monster)metal, x, y);
-            boss_hp_events.Add((Monster)metal, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)metal, new Action(BossLevel10Die));
         }
+
 
         private void GhostBoss(int x, int y)
         {
-            Ghost ghost = new Ghost(new Vector2(x, y));
-            ghost.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            ghost.speed = 6;
-            ghost.ExperienceGained = 40;
-            ghost.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            ghost.isGlowing = true;
-            ghost.glowingTransparency = 0.0f;
+            Ghost ghost = new Ghost(new Vector2(x, y))
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             ghost.jitteriness.Value = (Double)100.0;
 
             Game1.mine.tryToAddMonster((Monster)ghost, x, y);
-            boss_hp_events.Add((Monster)ghost, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)ghost, new Action(BossLevel10Die));
         }
 
         private void DustBoss(int x, int y)
         {
-            DustSpirit dust = new DustSpirit(new Vector2(x, y), true);
-            dust.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            dust.speed = 6;
-            dust.ExperienceGained = 40;
-            dust.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            dust.isGlowing = true;
-            dust.glowingTransparency = 0.0f;
+            DustSpirit dust = new DustSpirit(new Vector2(x, y), true)
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             dust.jitteriness.Value = (Double)100.0;
 
             Game1.mine.tryToAddMonster((Monster)dust, x, y);
-            boss_hp_events.Add((Monster)dust, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)dust, new Action(BossLevel10Die));
         }
 
         private void DuggyBoss(int x, int y)
         {
-            Duggy duggy = new Duggy(new Vector2(x, y));
-            duggy.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            duggy.speed = 6;
-            duggy.ExperienceGained = 40;
-            duggy.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            duggy.isGlowing = true;
-            duggy.glowingTransparency = 0.0f;
+            Duggy duggy = new Duggy(new Vector2(x, y))
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             duggy.jitteriness.Value = (Double)100.0;
 
             Game1.mine.tryToAddMonster((Monster)duggy, x, y);
-            boss_hp_events.Add((Monster)duggy, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)duggy, new Action(BossLevel10Die));
         }
 
         private void DinoBoss(int x, int y)
         {
-            DinoMonster dino = new DinoMonster(new Vector2(x, y));
-            dino.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            dino.speed = 6;
-            dino.ExperienceGained = 40;
-            dino.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            dino.isGlowing = true;
-            dino.glowingTransparency = 0.0f;
+            DinoMonster dino = new DinoMonster(new Vector2(x, y))
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             dino.jitteriness.Value = (Double)100.0;
 
             Game1.mine.tryToAddMonster((Monster)dino, x, y);
-            boss_hp_events.Add((Monster)dino, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)dino, new Action(BossLevel10Die));
         }
 
         private void BugBoss(int x, int y)
         {
-            Bug bug = new Bug(new Vector2(x, y), 0);
-            bug.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            bug.speed = 6;
-            bug.ExperienceGained = 40;
-            bug.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            bug.isGlowing = true;
-            bug.glowingTransparency = 0.0f;
+            Bug bug = new Bug(new Vector2(x, y), 0)
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             bug.jitteriness.Value = (Double)100.0;
 
             Game1.mine.tryToAddMonster((Monster)bug, x, y);
-            boss_hp_events.Add((Monster)bug, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)bug, new Action(BossLevel10Die));
         }
 
         private void BatBoss(int x, int y)
         {
-            Bat bat = new Bat(new Vector2(x, y), 0);
-            bat.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            bat.speed = 6;
-            bat.ExperienceGained = 40;
-            bat.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            bat.isGlowing = true;
-            bat.glowingTransparency = 0.0f;
+            Bat bat = new Bat(new Vector2(x, y), 0)
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             bat.jitteriness.Value = (Double)100.0;
 
             Game1.mine.tryToAddMonster((Monster)bat, x, y);
-            boss_hp_events.Add((Monster)bat, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)bat, new Action(BossLevel10Die));
         }
 
         private void SlimeBoss(int x, int y)
         {
-            BigSlime bigSlime = new BigSlime(new Vector2(x, y), 0);
-            bigSlime.Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400);
-            bigSlime.speed = 6;
-            bigSlime.ExperienceGained = 40;
-            bigSlime.DamageToFarmer = (mineLevel == 1) ? 12 : ((mineLevel / 2) * 12);
-            bigSlime.isGlowing = true;
-            bigSlime.glowingTransparency = 0.0f;
+            BigSlime bigSlime = new BigSlime(new Vector2(x, y), 0)
+            {
+                Health = (mineLevel == 1) ? 400 : ((mineLevel / 2) * 400),
+                speed = 6,
+                ExperienceGained = 40,
+                DamageToFarmer = (Config.difficulty > 5) ? (int)(mineLevel / 2 * difficulty) : ((mineLevel == 1) ? 12 : ((mineLevel / 2) * 12)),
+                isGlowing = true,
+                glowingTransparency = 0.0f
+            };
             bigSlime.jitteriness.Value = (Double)100.0;
             bigSlime.c.Value = new NetColor(new Color(rng.Next(255), rng.Next(255), rng.Next(255)));
 
             Game1.mine.tryToAddMonster((Monster)bigSlime, x, y);
-            boss_hp_events.Add((Monster)bigSlime, new Action(BossLevel10Die));
+            _bossHpEvents.Add((Monster)bigSlime, new Action(BossLevel10Die));
 
             if (rng.Next(1, 10) > 5)
             {
-                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
-                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
-                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
-                monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
+                _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
+                _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
+                _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
+                _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
             }
         }
 
@@ -351,13 +388,13 @@ namespace HardcoreMines2
                         bigSlime.c.Value = new NetColor(new Color(100,0,0));
 
                         Game1.mine.tryToAddMonster((Monster)bigSlime, tileX, tileY);
-                        boss_hp_events.Add((Monster)bigSlime, new Action(BossLevel10Die));
+                        _bossHpEvents.Add((Monster)bigSlime, new Action(BossLevel10Die));
                         flag = true;
 
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
-                        monsters_to_spawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
+                        _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 2, 300));
+                        _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 4, 200));
+                        _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 8, 100));
+                        _monstersToSpawn.Add(new BossSpawn((Monster)new GreenSlime(), 16, 20));
                     }
 
                     if(flag)
@@ -389,7 +426,7 @@ namespace HardcoreMines2
 
         private void BossLevel10Die()
         {
-            if(boss_treasures_state[0] == 0)
+            if(_bossTreasuresState[0] == 0)
             {
                 Chest chest = new Chest(false, new Vector2(9f, 9f));
 
@@ -398,13 +435,16 @@ namespace HardcoreMines2
                     if (mineLevel != 12)
                     {
                         ////this.monitor.Log($"count: {boss_treasures_inventory.Count}",LogLevel.Debug);
-                        foreach (treasure_item treasureItem in boss_treasures_inventory[rng.Next(0, 10)])
+                        foreach (treasure_item treasureItem in _bossTreasuresInventory[rng.Next(0, 10)])
                         {
                             ////this.monitor.Log($"{treasureItem.id}", LogLevel.Debug);
 
                             if (treasureItem.id == 506)
                             {
                                 chest.addItem((Item)new Boots(506));
+                            } else if (treasureItem.id == 517)
+                            {
+                                chest.addItem((Item) new Ring(517));
                             }
                             else
                             {
@@ -415,14 +455,15 @@ namespace HardcoreMines2
                             break;
                         }
                     }
-                } else
+                } 
+                else
                 {
                     //Stardrop for level 100
                     chest.addItem((Item)new StardewValley.Object(434, 1));
                 }
                 (Game1.mine.objects).Add(new Vector2(9f, 9f), chest);
 
-                boss_treasures_state[0] = 1;
+                _bossTreasuresState[0] = 1;
             } else
             {
                 //this.monitor.Log($"{boss_treasures_state[0]}", LogLevel.Debug);
@@ -442,11 +483,11 @@ namespace HardcoreMines2
 
             List<Monster> monsterList = new List<Monster>();
 
-            foreach (KeyValuePair<Monster, Action> bossHPEvent in boss_hp_events)
+            foreach (KeyValuePair<Monster, Action> bossHPEvent in _bossHpEvents)
             {
                 List<BossSpawn> spawnList = new List<BossSpawn>();
 
-                foreach (BossSpawn spawn in monsters_to_spawn)
+                foreach (BossSpawn spawn in _monstersToSpawn)
                 {
                     if (bossHPEvent.Key.Health <= spawn.trigger_hp)
                     {
@@ -489,7 +530,7 @@ namespace HardcoreMines2
 
                 foreach (BossSpawn spawn in spawnList)
                 {
-                    monsters_to_spawn.Remove(spawn);
+                    _monstersToSpawn.Remove(spawn);
                 }
 
                 if(bossHPEvent.Key.Health <= 0)
@@ -502,7 +543,7 @@ namespace HardcoreMines2
 
             for(int index = 0; index < monsterList.Count; ++index)
             {
-                boss_hp_events.Remove(monsterList[index]);
+                _bossHpEvents.Remove(monsterList[index]);
             }
 
             
@@ -510,16 +551,16 @@ namespace HardcoreMines2
 
         private void OnInventoryChange(object sender, InventoryChangedEventArgs e)
         {
-            if (!(Game1.currentLocation.Name == "UndergroundMine"))
+            if (Game1.currentLocation.Name != "UndergroundMine")
             {
                 return;
             }
 
             mineLevel = Game1.mine.mineLevel;
 
-            if (Game1.mine.Objects.Count() > 0 && mineLevel == 10 && boss_treasures_state[0] == 1)
+            if (Game1.mine.Objects.Any() && mineLevel == 10 && _bossTreasuresState[0] == 1)
             {
-                boss_treasures_inventory.Remove(0);
+                _bossTreasuresInventory.Remove(0);
 
                 List<treasure_item> treasureItemList = new List<treasure_item>();
 
@@ -528,7 +569,7 @@ namespace HardcoreMines2
                     treasureItemList.Add(new treasure_item(obj.ParentSheetIndex, obj.Stack));
                 }
 
-                boss_treasures_inventory.Add(0, treasureItemList);
+                _bossTreasuresInventory.Add(0, treasureItemList);
             }
         }
 
@@ -540,9 +581,9 @@ namespace HardcoreMines2
 
             for (int index = 0; index < 12; ++index)
             {
-                string str = index.ToString() + " " + boss_treasures_state[index].ToString();
+                string str = index.ToString() + " " + _bossTreasuresState[index].ToString();
 
-                foreach (treasure_item treasureItem in boss_treasures_inventory[index])
+                foreach (treasure_item treasureItem in _bossTreasuresInventory[index])
                 {
                     if (treasureItem.id != -1)
                     {
@@ -558,8 +599,8 @@ namespace HardcoreMines2
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            boss_treasures_inventory.Clear();
-            boss_treasures_state.Clear();
+            _bossTreasuresInventory.Clear();
+            _bossTreasuresState.Clear();
 
             string path = Constants.CurrentSavePath + "\\HardcoreMines2";
 
@@ -580,7 +621,7 @@ namespace HardcoreMines2
                     int num = int.Parse(str2.Substring(0, length2));
                     int startIndex2 = length2 + 1;
                     string str3 = str2.Substring(startIndex2, str2.Length - startIndex2);
-                    boss_treasures_state.Add(key, num);
+                    _bossTreasuresState.Add(key, num);
                     List<string> stringList = new List<string>((IEnumerable<string>)str3.Split(' '));
                     List<treasure_item> treasureItemList = new List<treasure_item>();
 
@@ -591,7 +632,7 @@ namespace HardcoreMines2
                         treasureItemList.Add(new treasure_item(int.Parse(strArray[0]), int.Parse(strArray[1])));
                     }
 
-                    boss_treasures_inventory.Add(key, treasureItemList);
+                    _bossTreasuresInventory.Add(key, treasureItemList);
                 }
 
                 streamReader.Close();
@@ -599,7 +640,7 @@ namespace HardcoreMines2
 
             for (int index = 0; index < 12; ++index)
             {
-                if (!boss_treasures_state.ContainsKey(index))
+                if (!_bossTreasuresState.ContainsKey(index))
                 {
                     InitialiseTreasure(index);
                 }
@@ -608,7 +649,7 @@ namespace HardcoreMines2
 
         private void InitialiseTreasure(int id)
         {
-            boss_treasures_state.Add(id, 0);
+            _bossTreasuresState.Add(id, 0);
             List<treasure_item> treasureItemList = new List<treasure_item>();
 
             switch(rng.Next(0, 10))
@@ -675,7 +716,7 @@ namespace HardcoreMines2
                     break;
             }
             
-            boss_treasures_inventory.Add(id, treasureItemList);
+            _bossTreasuresInventory.Add(id, treasureItemList);
         }
 
         private struct BossSpawn
