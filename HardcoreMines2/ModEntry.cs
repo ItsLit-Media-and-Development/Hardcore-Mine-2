@@ -89,28 +89,44 @@ namespace HardcoreMines2
             {
                 //this.Monitor.Log($"Mineshaft {mineShaft.name} at level {mineShaft.mineLevel}", LogLevel.Debug);
 
-                if (mineShaft.mineLevel != 120)
+                if (!SpecialLevel(mineShaft.mineLevel))
                 {
-                    if (mineShaft.mineLevel != 77377)
+                    if ((mineShaft.mineLevel > 120 && Config.skullCave) || mineShaft.mineLevel <= 120)
                     {
-                        if (mineShaft.mineLevel != 90)
-                        {
-                            if ((mineShaft.mineLevel > 120 && Config.skullCave) || mineShaft.mineLevel <= 120)
-                            {
-                                mineLevel = mineShaft.mineLevel / 10;
+                        mineLevel = mineShaft.mineLevel / 10;
 
-                                if (isBossLevel(mineShaft.mineLevel))
-                                {
-                                    BossLevel();
-                                }
-                                else
-                                {
-                                    GeneralLevel();
-                                }
-                            }
+                        if (isBossLevel(mineShaft.mineLevel))
+                        {
+                           BossLevel();
+                        }
+                        else
+                        {
+                            GeneralLevel();
                         }
                     }
                 }
+            }
+            else
+            {
+                if (e.NewLocation is VolcanoDungeon volcano && Config.volcanoDungeon) 
+                {
+                    //this.Monitor.Log($"Volcano Level {volcano.level}", LogLevel.Debug);
+                    GeneralLevel();
+                }
+            }
+        }
+
+        private bool SpecialLevel(int level)
+        {
+            switch (level)
+            {
+                case 90:
+                case 77377:
+                case 120:
+                    return true;
+
+                default:
+                    return false;
             }
         }
 
@@ -186,7 +202,7 @@ namespace HardcoreMines2
                 Vector2 tile = pair.Key;
                 StardewValley.Object obj = pair.Value;
 
-                //this.monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+                ////this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
 
                 if (obj.name == "Chest")
                 {
@@ -414,7 +430,7 @@ namespace HardcoreMines2
                 Vector2 tile = pair.Key;
                 StardewValley.Object obj = pair.Value;
 
-                ////this.monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
+                //////this.Monitor.Log($"{obj.Name} at {tile}", LogLevel.Debug);
 
                 if(obj.name == "Chest")
                 {
@@ -434,10 +450,10 @@ namespace HardcoreMines2
                 {
                     if (mineLevel != 12)
                     {
-                        ////this.monitor.Log($"count: {boss_treasures_inventory.Count}",LogLevel.Debug);
+                        //////this.Monitor.Log($"count: {boss_treasures_inventory.Count}",LogLevel.Debug);
                         foreach (treasure_item treasureItem in _bossTreasuresInventory[rng.Next(0, 10)])
                         {
-                            ////this.monitor.Log($"{treasureItem.id}", LogLevel.Debug);
+                            //////this.Monitor.Log($"{treasureItem.id}", LogLevel.Debug);
 
                             if (treasureItem.id == 506)
                             {
@@ -466,10 +482,10 @@ namespace HardcoreMines2
                 _bossTreasuresState[0] = 1;
             } else
             {
-                //this.monitor.Log($"{boss_treasures_state[0]}", LogLevel.Debug);
+                ////this.Monitor.Log($"{boss_treasures_state[0]}", LogLevel.Debug);
             }
 
-            ////this.monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
+            //////this.Monitor.Log("[Hardcore Mines] DEATH", LogLevel.Debug);
             Game1.playSound("powerup");
 
         }
@@ -503,7 +519,7 @@ namespace HardcoreMines2
                                 {
                                     if (Game1.mine.isTileClearForMineObjects(new Vector2((float)tileX, (float)tileY)))
                                     {
-                                        ////this.monitor.Log("[Hardcore Mines 2] Tile clear, trying to spawn.", LogLevel.Debug);
+                                        //////this.Monitor.Log("[Hardcore Mines 2] Tile clear, trying to spawn.", LogLevel.Debug);
 
                                         Game1.mine.tryToAddMonster((Monster)new GreenSlime(new Vector2((float)tileX, (float)tileY), Color.Green), tileX, tileY);
 
@@ -589,7 +605,7 @@ namespace HardcoreMines2
                     {
                         str = str + " " + (object)treasureItem.id + "," + (object)treasureItem.count;
                     }
-                    //this.monitor.Log(str, LogLevel.Debug);
+                    ////this.Monitor.Log(str, LogLevel.Debug);
                     streamWriter.WriteLine(str);
                 }
             }
