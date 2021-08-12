@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using StardewValley.Tools;
 
 namespace HardcoreMines2
 {
@@ -461,6 +462,16 @@ namespace HardcoreMines2
                             } else if (treasureItem.id == 517)
                             {
                                 chest.addItem((Item) new Ring(517));
+                            } else if (treasureItem.id == 61)
+                            {
+                                chest.addItem((Item) new Hat(61));
+                            } else if (treasureItem.id == 508)
+                            {
+                                chest.addItem((Item)new Boots(508));
+                            }
+                            else if (treasureItem.id == 1138)
+                            {
+                                chest.addItem((Item)new Clothing(1138));
                             }
                             else
                             {
@@ -668,7 +679,7 @@ namespace HardcoreMines2
             _bossTreasuresState.Add(id, 0);
             List<treasure_item> treasureItemList = new List<treasure_item>();
 
-            switch(rng.Next(0, 10))
+            switch(rng.Next(0, 19))
             {
                 case 0:
                     treasureItemList.Add(new treasure_item(334, 5));
@@ -728,6 +739,27 @@ namespace HardcoreMines2
                     break;
                 case 14:
                     treasureItemList.Add(new treasure_item(745, 3));
+
+                    break;
+                case 15:
+                    treasureItemList.Add(new treasure_item(130, 2));
+
+                    break;
+                case 16:
+                    treasureItemList.Add(new treasure_item(130, 2));
+
+                    break;
+                case 17:
+                    treasureItemList.Add(new treasure_item(61, 1));
+
+                    break;
+                case 18:
+                    treasureItemList.Add(new treasure_item(508, 1));
+
+                    break;
+                case 19:
+                    treasureItemList.Add(new treasure_item(1138, 1));
+                    treasureItemList.Add(new treasure_item(489, 1));
 
                     break;
             }
