@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+﻿namespace HardcoreMines2
+{
+    internal class ModConfig
+    {
+        public double difficulty { get; set; } = 3;
+        public bool extraXP { get; set; } = false;
+    }
+}
+=======
 ﻿namespace HardcoreMines2
 {
     internal class ModConfig
@@ -8,3 +18,4 @@
         public bool volcanoDungeon { get; set; } = false;
     }
 }
+>>>>>>> dev
