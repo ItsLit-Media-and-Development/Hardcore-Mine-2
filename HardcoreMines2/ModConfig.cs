@@ -1,4 +1,4 @@
-﻿namespace HardcoreMines2
+namespace HardcoreMines2
 {
     internal class ModConfig
     {
