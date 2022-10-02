@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-﻿{
-  "Name": "Hardcore Mine 2",
-  "Author": "ItsLittany",
-  "Version": "1.1.6",
-  "Description": "Updated version of Hardcore Mines",
-  "UniqueID": "itslittany.HardcoreMines2",
-  "EntryDll": "HardcoreMines2.dll",
-  "MinimumApiVersion": "2.10.0",
-  "UpdateKeys": [ "Nexus:6411" ]
-=======
 {
   "Name": "Hardcore Mine 2",
   "Author": "ItsLittany",
@@ -18,5 +7,4 @@
   "EntryDll": "HardcoreMines2.dll",
   "MinimumApiVersion": "2.10.0",
   "UpdateKeys": [ "Nexus:6411" ]
->>>>>>> dev
 }
